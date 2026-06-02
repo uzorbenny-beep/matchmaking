@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Joke Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #FF6B6B;
+            --secondary-color: #4ECDC4;
+            --accent-color: #FFE66D;
+            --dark-color: #2C3E50;
+            --light-color: #ECF0F1;
+            --gray-color: #95A5A6;
+            --white: #FFFFFF;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px 30px;
+            max-width: 600px;
+            width: 100%;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .header .emoji {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        .header p {
+            color: var(--gray-color);
+            font-size: 1rem;
+        }
+
+        .joke-container {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(78, 205, 196, 0.1));
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--accent-color);
+        }
+
+        .joke-text {
+            font-size: 1.2rem;
+            color: var(--dark-color);
+            text-align: center;
+            line-height: 1.8;
+            font-weight: 500;
+        }
+
+        .loading {
+            text-align: center;
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--light-color);
+            border-top-color: var(--secondary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--white);
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: var(--accent-color);
+            color: var(--dark-color);
+        }
+
+        .btn-secondary:hover {
+            background: #FFD700;
+            transform: translateY(-3px);
+        }
+
+        .joke-type-selector {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .joke-type-selector label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .joke-type-selector select {
+            padding: 10px 15px;
+            border: 2px solid var(--secondary-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            background: var(--white);
+            color: var(--dark-color);
+            transition: all 0.3s ease;
+        }
+
+        .joke-type-selector select:hover {
+            border-color: var(--primary-color);
+        }
+
+        .joke-type-selector select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 5px rgba(255, 107, 107, 0.3);
+        }
+
+        .stats {
+            background: var(--light-color);
+            border-radius: 10px;
+            padding: 15px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--gray-color);
+        }
+
+        .stats strong {
+            color: var(--primary-color);
+        }
+
+        .error {
+            background: #FFE6E6;
+            border: 2px solid #FF6B6B;
+            color: #C92A2A;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .success {
+            background: #E6F7E6;
+            border: 2px solid #51CF66;
+            color: #2F7F2F;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .joke-text {
+                font-size: 1rem;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .btn-primary {
+                flex: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <span class="emoji">😂</span>
+            <h1>Joke Generator</h1>
+            <p>Get a random joke to brighten your day!</p>
+        </div>
+
+        <div class="joke-type-selector">
+            <label for="jokeType">Select Joke Type:</label>
+            <select id="jokeType">
+                <option value="any">Any</option>
+                <option value="general">General</option>
+                <option value="programming">Programming</option>
+                <option value="knock-knock">Knock-Knock</option>
+            </select>
+        </div>
+
+        <div id="stats" class="stats"></div>
+
+        <div id="message"></div>
+
+        <div class="joke-container">
+            <div id="jokeDisplay" class="joke-text">Click "Get Joke" to start!</div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn-primary" id="getJokeBtn">Get Joke</button>
+            <button class="btn-secondary" id="shareBtn">Share</button>
+        </div>
+    </div>
+
+    <script>
+        const jokeDisplay = document.getElementById('jokeDisplay');
+        const getJokeBtn = document.getElementById('getJokeBtn');
+        const shareBtn = document.getElementById('shareBtn');
+        const jokeTypeSelect = document.getElementById('jokeType');
+        const messageDiv = document.getElementById('message');
+        const statsDiv = document.getElementById('stats');
+
+        let currentJoke = '';
+        let jokeCount = 0;
+
+        // Available joke APIs
+        const jokeAPIs = {
+            any: 'https://official-joke-api.appspot.com/random_joke',
+            general: 'https://official-joke-api.appspot.com/jokes/general/random',
+            programming: 'https://official-joke-api.appspot.com/jokes/programming/random',
+            'knock-knock': 'https://official-joke-api.appspot.com/jokes/knock-knock/random'
+        };
+
+        // Fetch a random joke
+        async function getJoke() {
+            const jokeType = jokeTypeSelect.value;
+            const apiUrl = jokeAPIs[jokeType];
+
+            getJokeBtn.disabled = true;
+            jokeDisplay.innerHTML = '<span class="spinner"></span><div class="loading">Loading joke...</div>';
+            messageDiv.innerHTML = '';
+
+            try {
+                const response = await fetch(apiUrl);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Handle the joke format
+                if (data.setup && data.punchline) {
+                    currentJoke = `${data.setup}\n\n${data.punchline}`;
+                } else if (data.joke) {
+                    currentJoke = data.joke;
+                } else {
+                    currentJoke = 'Could not retrieve joke. Try again!';
+                }
+
+                jokeDisplay.innerHTML = currentJoke.replace(/\n\n/g, '<br><br>');
+                jokeCount++;
+                updateStats();
+
+                // Show success message
+                showMessage('✅ Got a fresh joke!', 'success');
+            } catch (error) {
+                console.error('Error fetching joke:', error);
+                jokeDisplay.innerHTML = '😞 Oops! Could not fetch a joke. Please check your internet connection and try again.';
+                showMessage('❌ Failed to fetch joke. Please try again.', 'error');
+            } finally {
+                getJokeBtn.disabled = false;
+            }
+        }
+
+        // Share the joke
+        function shareJoke() {
+            if (!currentJoke) {
+                showMessage('⚠️ Get a joke first before sharing!', 'error');
+                return;
+            }
+
+            const text = `Check out this joke: ${currentJoke}`;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Random Joke',
+                    text: text
+                }).catch((error) => console.log('Error sharing:', error));
+            } else {
+                // Fallback: Copy to clipboard
+                navigator.clipboard.writeText(text).then(() => {
+                    showMessage('📋 Joke copied to clipboard!', 'success');
+                }).catch((error) => {
+                    console.error('Error copying to clipboard:', error);
+                    showMessage('❌ Could not copy joke.', 'error');
+                });
+            }
+        }
+
+        // Show temporary message
+        function showMessage(message, type) {
+            messageDiv.innerHTML = `<div class="${type}">${message}</div>`;
+            setTimeout(() => {
+                messageDiv.innerHTML = '';
+            }, 3000);
+        }
+
+        // Update statistics
+        function updateStats() {
+            statsDiv.innerHTML = `<strong>${jokeCount}</strong> joke${jokeCount !== 1 ? 's' : ''} loaded today`;
+        }
+
+        // Event listeners
+        getJokeBtn.addEventListener('click', getJoke);
+        shareBtn.addEventListener('click', shareJoke);
+
+        // Initialize stats
+        updateStats();
+
+        // Optional: Get a joke on page load
+        // getJoke();
+    </script>
+</body>
+</html>
