@@ -1,0 +1,19 @@
+{
+  "name": "International Matchmaking Website",
+  "version": "1.0.0",
+  "description": "A modern, responsive website for international matchmaking and cross-cultural relationship guidance",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python -m http.server 8000",
+    "build": "echo 'Static site - no build needed'"
+  },
+  "keywords": [
+    "international dating",
+    "long-distance relationships",
+    "cross-cultural love",
+    "visa guides",
+    "matchmaking"
+  ],
+  "author": "International Matchmaking",
+  "license": "MIT"
+}
